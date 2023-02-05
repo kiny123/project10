@@ -14,6 +14,14 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         super.viewDidLoad()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        
+        let defaults = UserDefaults.standard
+
+        if let savedPeople = defaults.object(forKey: "people") as? Data {
+            if let decodedPeople = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(savedPeople) as? [Person] {
+                people = decodedPeople
+            }
+        }
     }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -131,12 +139,12 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
 
                let person = Person(name: "Unknown", image: imageName)
                self?.people.append(person)
-
                DispatchQueue.main.async {
                    self?.collectionView.reloadData()
                    self?.dismiss(animated: true)
                }
            }
+        save()
        }
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let person = people[indexPath.item]
@@ -149,8 +157,9 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
                     self?.deletePersonTapped(at: indexPath)
                 }))
                 ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-            self.collectionView?.reloadData()
+            
+        self.save()
+        self.collectionView?.reloadData()
         
 
         present(ac, animated: true)
@@ -176,7 +185,16 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         let documentsDirectory = paths[0]
         return documentsDirectory
     }
-      
+    func save() {
+        if let savedData = try? NSKeyedArchiver.archivedData(withRootObject: people, requiringSecureCoding: false){
+        
+        let defults = UserDefaults.standard
+            
+            defults.set(savedData, forKey: "people")
+        }
+    }
+
+          
    
     
 }
@@ -185,4 +203,9 @@ extension ViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return  CGSize(width: 140, height: 180)
     }
+    
+    
 }
+
+
+
