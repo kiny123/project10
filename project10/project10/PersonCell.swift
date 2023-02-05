@@ -2,7 +2,7 @@
 //  PersonCell.swift
 //  project10
 //
-//  Created by nikita on 27.01.2023.
+//  Created by nikita on 31.01.2023.
 //
 
 import UIKit
